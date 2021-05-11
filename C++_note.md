@@ -10,4 +10,4 @@
 由程序员分配和释放，若程序员不释放，在程序结束时由操作系统回收 ***(利用new返回地址,delete删除开辟的空间)***
 
 ### struct和class的区别
-struct 默认都是public,class自己定义
+struct 默认都是public,class默认是private（可以自己定义）
