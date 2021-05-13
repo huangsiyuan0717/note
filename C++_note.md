@@ -15,3 +15,6 @@ struct 默认都是public,class默认是private（可以自己定义）
 ### 字符串
 * 获取元素 s[]末尾会有个'\0'即空格，如 s = "abcd", s[4] = '\0' 输出是空格 ---- s.at(5)则报错  可以直接s[0] = a;
 * 获取部分长度str.substr(start,lenth),vector定义是:vector<> a = {};
+
+### 盲点
+* ***哈希表和map函数,栈的应用，参照leetcode 有效的括号***
