@@ -10,11 +10,13 @@
 * ~~看完5.10的loam文章\看文章里面的kdtree和slam和几种最小二乘的关系  ok~~
 * 看lego_loam的文章，比对带着lio_sam（有时间可以比对代码）并绘制思维图
 * ~~看loam或者a_loam的代码优化部分是怎么lm优化的 ***看了伪代码的lm优化***~~
+* ~~leetcode刷题～～
 
 ### 5.13
 * 看lego_loam和lio_sam，想一下可修改的点
 * ~~在仔细把loam流程整理熟悉~~
 * lego_loam 的聚类区分bfs看不太懂
+* ~~leetcode刷题~~
 
 ### 5.14
 * 看lio_sam的论文和讲解，讨论可修改的点
