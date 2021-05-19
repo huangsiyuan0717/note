@@ -26,3 +26,6 @@
 *  ~~跑lego车库，存储地图~~ 只存在了pcd然后用pcl_viewer查看，没找到方法完整存下
 * ~~看lego源代码~~ 第一章还没看完
 * leetcode刷题
+### 5.19
+* 看lego源码
+* leetcode刷题
