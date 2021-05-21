@@ -28,7 +28,7 @@ struct 默认都是public,class默认是private（可以自己定义）
 * vector类型 在开头插入数值 vector.insert(vector.begin(),val)
 
 
-
+* i++是先赋值，然后再自增；++i是先自增，后赋值
 ## 盲点
 * 哈希表和map函数,栈的应用，参照leetcode 有效的括号
 * kmp表                  参照leetcode 实现strStr（）
