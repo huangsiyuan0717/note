@@ -26,6 +26,7 @@ struct 默认都是public,class默认是private（可以自己定义）
 * 获取元素 s[]末尾会有个'\0'即空格，如 s = "abcd", s[4] = '\0' 输出是空格 ---- s.at(5)则报错  可以直接s[0] = a;
 * 获取部分长度str.substr(start,lenth),vector定义是:vector<> a = {};
 * vector类型 在开头插入数值 vector.insert(vector.begin(),val)
+* '' 单引号是字符，可以+-运算（是ascall码）， ""字符串 +- 是字符串拼接
 * isalnum(s) 判断是否为数字或者字母 是的花返回true
 
 
