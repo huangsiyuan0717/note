@@ -85,15 +85,57 @@
       * 子进程退出之前，会向父进程发送一个信号，父进程调用wait函数等待这个信号，只要等到了，就不会产生僵尸进程。这话说得容易，在并发的服务程序中这是不可能的，因为父进程要做其它的事，例如等待客户端的新连接，不可能去等待子进程的退出信号
       * 另一种方法就是父进程直接忽略子进程的退出信号，具体做法很简单，在主程序中启用以下代码： `signal(SIGCHLD,SIG_IGN); `
       
-
-
- 
-
-
-
 ### I/O多路复用
-1. select
-2. poll
-3. epoll
+1. **select** : `int select(int maxfdp1,fd_set *readset,fd_set *writeset,fd_set *exceptset,const struct timeval *timeout)返回值：就绪描述符的数目，超时返回0，出错返回-1`
+   该函数准许进程指示内核等待多个事件中的任何一个发送，并只在有一个或多个事件发生或经历一段指定的时间后才唤醒  
+   select的几大缺点：
+   * 每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大
+   * 同时每次调用select都需要在内核遍历传递进来的所有fd，这个开销在fd很多时也很大
+   * select支持的文件描述符数量太小了，默认是1024(每个描述符是通过位图映射的）
+   * select是水平触发(LT)，即当此select检测到了fd的事件但是没有处理或者没有完全处理完，select还会立即报告该fd
+2. **poll**: `int poll ( struct pollfd * fds, unsigned int nfds, int timeout);`
+   ```C++
+   struct pollfd {
+   int fd;         /* 文件描述符 */
+   short events;         /* 等待的事件 */
+   short revents;       /* 实际发生了的事件 */
+   } ; 
+   ```
+   每一个pollfd结构体指定了**一个**被监视的文件描述符，可以**传递多个结构体**，指示poll()监视多个文件描述符。每个结构体的events域是监视该文件描述符的事件掩码，由用户来设置这个域。revents域是文件描述符的操作结果事件掩码，内核在调用返回时设置这个域。
+   在select中，不能直接传入原本的fd_set, 而需要创建一个**副本传入**，因为select会**直接修改fd_set会造成原本的fd_set丢失**的情况。
+   而在poll中，有事件发生的fd会体现在在revents中，不需要创建临时副本。
+   poll的缺点：
+   * 与select一样，也需要遍历发生事件的fd，也同样需要用户态和内核态之间切换时间开销过大
+   * 也是和select一样的水平触发(LT)，存储是数组(结构体数组)的形式
+
+3. **epoll**:相对于select和poll来说，epoll更加灵活，没有描述符限制。epoll使用一个文件描述符管理多个描述符，将用户关系的文件描述符的事件存放到内核的一个事件表中，这样在用户空间和内核空间的copy只需一次。
+   ```C++
+   int epoll_create(int size);
+   int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+   int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout);
+   ```
+   * `int epoll_create(int size);` : 创建一个epoll的句柄，size用来告诉内核这个监听的数目一共有多大。这个参数不同于select()中的第一个参数，给出最大监听的fd+1的值。需要注意的是，当创建好epoll句柄后，它就是会占用一个fd值，在linux下如果查看/proc/进程id/fd/，是能够看到这个fd的，所以在使用完epoll后，必须调用close()关闭，否则可能导致fd被耗尽。
+    * `int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);` epoll的事件注册函数,它不同与select()是在监听事件时告诉内核要监听什么类型的事件，而是在这里先注册要监    听的事件类型。第一个参数是epoll_create()的返回值，第二个参数表示动作，用三个宏来表示：
+   EPOLL_CTL_ADD：注册新的fd到epfd中；
+   EPOLL_CTL_MOD：修改已经注册的fd的监听事件；
+   EPOLL_CTL_DEL：从epfd中删除一个fd；
+   第三个参数是需要监听的fd，第四个参数是告诉内核需要监听什么事，struct epoll_event结构如下：
+   ```C++
+   struct epoll_event {
+     __uint32_t events;  /* Epoll events */
+     epoll_data_t data;  /* User data variable */
+   };
+   ```
+   与poll相似
+   events可以是以下几个宏的集合：
+   EPOLLIN ：表示对应的文件描述符可以读（包括对端SOCKET正常关闭）；
+   EPOLLOUT：表示对应的文件描述符可以写；
+   EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；
+   EPOLLERR：表示对应的文件描述符发生错误；
+   EPOLLHUP：表示对应的文件描述符被挂断；
+   **EPOLLET**： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。
+   EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里
+   ET模式：当epoll_wait检测到了fd的事件但是没有处理或者没有完全处理完，下次调用epoll_wait时会再次报告该fd
+   ET模式在很大程度上减少了epoll事件被重复触发的次数，因此效率要比LT模式高。epoll工作在ET模式的时候，必须使用非阻塞套接口，以避免由于一个文件句柄的阻塞读/阻塞写操作把处理多个文件描述符的任务    饿死。
 
 ## 操作系统
