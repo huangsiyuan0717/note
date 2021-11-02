@@ -12,4 +12,4 @@
 * XML报文类
 * 心跳报文
 * 多线程
-* I/O多路复用 select poll epoll
+* ~~I/O多路复用 select poll epoll~~
