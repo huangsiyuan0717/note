@@ -92,7 +92,7 @@
    * 每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大
    * 同时每次调用select都需要在内核遍历传递进来的所有fd，这个开销在fd很多时也很大
    * select支持的文件描述符数量太小了，默认是1024(每个描述符是通过位图映射的）
-   * select是水平触发(LT)，即当此select检测到了fd的事件但是没有处理或者没有完全处理完，select还会立即报告该fd
+   * select是水平触发(LT)，即当此select检测到了fd的事件但是没有处理或者没有完全处理完，下次调用select还会报告该fd(即使该fd_set中没有事件发生）
 2. **poll**: `int poll ( struct pollfd * fds, unsigned int nfds, int timeout);`
    ```C++
    struct pollfd {
@@ -135,7 +135,7 @@
    EPOLLHUP：表示对应的文件描述符被挂断；  
    **EPOLLET**： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。  
    EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里  
-   ET模式：当epoll_wait检测到了fd的事件但是没有处理或者没有完全处理完，下次调用epoll_wait时会再次报告该fd  
+   ET模式：当被监控的文件描述符上有可读写事件发生时，epoll_wait()会通知处理程序去读写。如果这次没有把数据全部读写完(如读写缓冲区太小)，那么下次调用epoll_wait()时，它不会通知你，也就是它只    会通知你一次，直到该文件描述符上出现第二次可读写事件才会通知你  
    ET模式在很大程度上减少了epoll事件被重复触发的次数，因此效率要比LT模式高。epoll工作在ET模式的时候，必须使用非阻塞套接口，以避免由于一个文件句柄的阻塞读/阻塞写操作把处理多个文件描述符的任务    饿死。  
 
 ## 操作系统
