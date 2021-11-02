@@ -126,16 +126,16 @@
      epoll_data_t data;  /* User data variable */
    };
    ```
-   与poll相似
-   events可以是以下几个宏的集合：
-   EPOLLIN ：表示对应的文件描述符可以读（包括对端SOCKET正常关闭）；
-   EPOLLOUT：表示对应的文件描述符可以写；
-   EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；
-   EPOLLERR：表示对应的文件描述符发生错误；
-   EPOLLHUP：表示对应的文件描述符被挂断；
-   **EPOLLET**： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。
-   EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里
-   ET模式：当epoll_wait检测到了fd的事件但是没有处理或者没有完全处理完，下次调用epoll_wait时会再次报告该fd
-   ET模式在很大程度上减少了epoll事件被重复触发的次数，因此效率要比LT模式高。epoll工作在ET模式的时候，必须使用非阻塞套接口，以避免由于一个文件句柄的阻塞读/阻塞写操作把处理多个文件描述符的任务    饿死。
+   与poll相似  
+   events可以是以下几个宏的集合：  
+   EPOLLIN ：表示对应的文件描述符可以读（包括对端SOCKET正常关闭；  
+   EPOLLOUT：表示对应的文件描述符可以写；  
+   EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来；  
+   EPOLLERR：表示对应的文件描述符发生错误；  
+   EPOLLHUP：表示对应的文件描述符被挂断；  
+   **EPOLLET**： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。  
+   EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里  
+   ET模式：当epoll_wait检测到了fd的事件但是没有处理或者没有完全处理完，下次调用epoll_wait时会再次报告该fd  
+   ET模式在很大程度上减少了epoll事件被重复触发的次数，因此效率要比LT模式高。epoll工作在ET模式的时候，必须使用非阻塞套接口，以避免由于一个文件句柄的阻塞读/阻塞写操作把处理多个文件描述符的任务    饿死。  
 
 ## 操作系统
