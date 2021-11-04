@@ -44,7 +44,7 @@
    }  
    ```  
 2. **多线程**:
-   1. `unique_lock`
+   1. `unique_lock` `lock_guard`
    2. 条件变量
 
 
