@@ -49,6 +49,62 @@
    3. `future` `promise` `async
 
 
+3. **shared_ptr**:  
+```C++
+template<typename T>
+class MyPtr{
+private:
+    T *ptr_;
+    int *count_;
+
+public:
+    MyPtr(T *ptr){
+        ptr_ = ptr;
+        count_ = new int;
+        *count_ = 1;
+    }
+
+    MyPtr(MyPtr<T> &myptr){
+        ptr_ = myptr.ptr_;
+        count_ = myptr.count_;
+        ++(*count_);
+    }
+
+    MyPtr<T> &operator=(MyPtr<T> &rhs){
+        if(this == &rhs) return *this;
+
+        if(--(this->count_) == 0){
+            delete ptr_;
+            ptr_ = nullptr;
+            delete count_;
+            count_ = nullptr;
+        }
+        this->ptr_ = rhs->ptr_;
+        this->count_ = rhs->count_;
+        ++(*count_);
+
+        return *this;
+    }
+
+    T getValue(){
+        return *ptr_;
+    }
+
+    int getCount{
+        return *count_;
+    }
+
+    ~MyPtr(){
+        if(--(*count_) == 0){
+            delete ptr_;
+            delete count_;
+            ptr = nullptr;
+            count_ = nullptr;
+        }
+    }
+    
+};
+```
 
    
 
