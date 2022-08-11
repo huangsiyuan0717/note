@@ -181,7 +181,7 @@ public:
    select的几大缺点：
    * 每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大
    * 同时每次调用select都需要在内核遍历传递进来的所有fd，这个开销在fd很多时也很大
-   * select支持的文件描述符数量太小了，默认是1024(每个描述符是通过位图映射的）
+   * select支持的文件描述符数量太小了，默认是1024(每个描述符是通过位图映射的）,`/proc/sys/fs/file-max`下更改最大数量
    * select是水平触发(LT)，即当此select检测到了fd的事件但是没有处理或者没有完全处理完，下次调用select还会报告该fd(即使该fd_set中没有事件发生）
 2. **poll**: `int poll ( struct pollfd * fds, unsigned int nfds, int timeout);`
    ```C++
